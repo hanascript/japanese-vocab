@@ -7,8 +7,8 @@ export default function StudyPage() {
   return (
     <div>
       <Button
-        className='w-full border-2 border-dashed border-orange-400/80 p-16 font-bold shadow-md transition-all duration-600 ease-in-out hover:bg-orange-200/50'
-        variant='secondary'
+        className='w-full border-orange-400/80 p-16 font-bold duration-600 ease-in-out hover:bg-orange-200/50'
+        variant='outline'
         asChild
       >
         <Link href='/create-set'>
