@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bookmark, BookMarked, BookOpen, CircleX, Plus, Target } from 'lucide-react';
+import { Bookmark, BookOpen, CircleX, Plus, Target } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
