@@ -20,7 +20,7 @@ import {
 // });
 
 // Decks/Collections of flashcards
-export const DecksTable = pgTable('decks', {
+export const decks = pgTable('decks', {
   id: serial('id').primaryKey(),
   // userId: integer('user_id').references(() => users.id).notNull(),
   name: text('name').notNull(),
@@ -30,19 +30,18 @@ export const DecksTable = pgTable('decks', {
 });
 
 // Individual flashcards
-export const FlashcardsTable = pgTable('flashcards', {
+export const flashcards = pgTable('flashcards', {
   id: serial('id').primaryKey(),
   deckId: integer('deck_id')
-    .references(() => DecksTable.id)
+    .references(() => decks.id)
     .notNull(),
 
-  // Front side content
-  frontText: text('front_text').notNull(),
-  frontSecondary: text('front_secondary'), // Additional info for front
-
-  // Back side content
-  backText: text('back_text').notNull(),
-  backSecondary: text('back_secondary'), // Additional info for back
+  // Japanese text components
+  kanji: text('kanji'), // Optional kanji representation
+  kana: text('kana').notNull(), // Required hiragana/katakana
+  meaning: text('meaning').notNull(), // Required meaning
+  pronunciation: text('pronunciation'), // Optional romaji/pronunciation
+  example: text('example'), // Optional example sentence
 
   // Metadata
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -50,11 +49,11 @@ export const FlashcardsTable = pgTable('flashcards', {
 });
 
 // Spaced repetition data for each user-card combination
-export const CardProgressTable = pgTable('card_progress', {
+export const cardProgress = pgTable('card_progress', {
   id: serial('id').primaryKey(),
   // userId: integer('user_id').references(() => users.id).notNull(),
   flashcardId: integer('flashcard_id')
-    .references(() => FlashcardsTable.id)
+    .references(() => flashcards.id)
     .notNull(),
 
   // Spaced repetition algorithm fields
@@ -75,11 +74,11 @@ export const CardProgressTable = pgTable('card_progress', {
 });
 
 // Individual review sessions/attempts
-export const ReviewSessionsTable = pgTable('review_sessions', {
+export const reviewSessions = pgTable('review_sessions', {
   id: serial('id').primaryKey(),
   // userId: integer('user_id').references(() => users.id).notNull(),
   flashcardId: integer('flashcard_id')
-    .references(() => FlashcardsTable.id)
+    .references(() => flashcards.id)
     .notNull(),
 
   // Review outcome
@@ -99,41 +98,41 @@ export const ReviewSessionsTable = pgTable('review_sessions', {
 //   reviewSessions: many(reviewSessions),
 // }));
 
-export const DecksRelations = relations(DecksTable, ({ one, many }) => ({
+export const decksRelations = relations(decks, ({ one, many }) => ({
   // user: one(users, {
   //   fields: [decks.userId],
   //   references: [users.id],
   // }),
-  flashcards: many(FlashcardsTable),
+  flashcards: many(flashcards),
 }));
 
-export const FlashcardsRelations = relations(FlashcardsTable, ({ one, many }) => ({
-  deck: one(DecksTable, {
-    fields: [FlashcardsTable.deckId],
-    references: [DecksTable.id],
+export const flashcardsRelations = relations(flashcards, ({ one, many }) => ({
+  deck: one(decks, {
+    fields: [flashcards.deckId],
+    references: [decks.id],
   }),
-  cardProgress: many(CardProgressTable),
-  reviewSessions: many(ReviewSessionsTable),
+  cardProgress: many(cardProgress),
+  reviewSessions: many(reviewSessions),
 }));
 
-export const CardProgressRelations = relations(CardProgressTable, ({ one }) => ({
+export const cardProgressRelations = relations(cardProgress, ({ one }) => ({
   // user: one(users, {
   //   fields: [cardProgress.userId],
   //   references: [users.id],
   // }),
-  flashcard: one(FlashcardsTable, {
-    fields: [CardProgressTable.flashcardId],
-    references: [FlashcardsTable.id],
+  flashcard: one(flashcards, {
+    fields: [cardProgress.flashcardId],
+    references: [flashcards.id],
   }),
 }));
 
-export const ReviewSessionsRelations = relations(ReviewSessionsTable, ({ one }) => ({
+export const reviewSessionsRelations = relations(reviewSessions, ({ one }) => ({
   // user: one(users, {
   //   fields: [reviewSessions.userId],
   //   references: [users.id],
   // }),
-  flashcard: one(FlashcardsTable, {
-    fields: [ReviewSessionsTable.flashcardId],
-    references: [FlashcardsTable.id],
+  flashcard: one(flashcards, {
+    fields: [reviewSessions.flashcardId],
+    references: [flashcards.id],
   }),
 }));
