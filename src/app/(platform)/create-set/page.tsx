@@ -1,6 +1,6 @@
 'use client';
 
-import { createNewSet } from '@/actions/create-new-set';
+import { createNewDeck } from '@/actions/create-new-deck';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Save, Trash } from 'lucide-react';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -39,7 +39,7 @@ export default function CreateSetPage() {
   });
 
   function onSubmit(values: z.infer<typeof newDeckSchema>) {
-    createNewSet(values);
+    createNewDeck(values);
   }
 
   const addCard = () => {

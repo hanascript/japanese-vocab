@@ -2,8 +2,11 @@ import Link from 'next/link';
 import { Bookmark, BookOpen, CircleX, Plus, Target } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { getDecks } from '@/actions/get-decks';
 
-export default function StudyPage() {
+export default async function StudyPage() {
+  const decks = await getDecks();
+
   return (
     <div className='mb-12 space-y-12'>
       <div className='flex w-full justify-between rounded-md bg-orange-300 p-8'>

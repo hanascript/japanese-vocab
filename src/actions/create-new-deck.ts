@@ -9,7 +9,7 @@ import { decks, flashcards } from '@/drizzle/schema';
 
 import { newDeckSchema } from '@/lib/schemas';
 
-export async function createNewSet(formData: z.infer<typeof newDeckSchema>) {
+export async function createNewDeck(formData: z.infer<typeof newDeckSchema>) {
   const validatedFields = newDeckSchema.safeParse(formData);
 
   if (!validatedFields.success) {
