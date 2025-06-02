@@ -23,10 +23,11 @@ CREATE TABLE "decks" (
 CREATE TABLE "flashcards" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"deck_id" integer NOT NULL,
-	"front_text" text NOT NULL,
-	"front_secondary" text,
-	"back_text" text NOT NULL,
-	"back_secondary" text,
+	"kanji" text,
+	"kana" text NOT NULL,
+	"meaning" text NOT NULL,
+	"pronunciation" text,
+	"example" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

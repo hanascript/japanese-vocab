@@ -1,5 +1,5 @@
 {
-  "id": "368c2cab-b2b8-48ec-a6a2-426fa80acc5c",
+  "id": "52bc15c1-72b3-4641-96e2-12d7bd6aaf9a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -166,26 +166,32 @@
           "primaryKey": false,
           "notNull": true
         },
-        "front_text": {
-          "name": "front_text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "front_secondary": {
-          "name": "front_secondary",
+        "kanji": {
+          "name": "kanji",
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "back_text": {
-          "name": "back_text",
+        "kana": {
+          "name": "kana",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "back_secondary": {
-          "name": "back_secondary",
+        "meaning": {
+          "name": "meaning",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pronunciation": {
+          "name": "pronunciation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "example": {
+          "name": "example",
           "type": "text",
           "primaryKey": false,
           "notNull": false
