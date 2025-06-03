@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   real,
   serial,
@@ -9,6 +10,10 @@ import {
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
+
+// Create enums first
+export const deckEnum = pgEnum('deck_enum', ['CORE', 'CUSTOM', 'JLPT']);
+export const challengeEnum = pgEnum('challenge_enum', ['READING', 'ASSIST']);
 
 // Users table
 // export const users = pgTable('users', {
@@ -25,6 +30,7 @@ export const decks = pgTable('decks', {
   // userId: integer('user_id').references(() => users.id).notNull(),
   name: text('name').notNull(),
   description: text('description'),
+  type: deckEnum('type').default('CUSTOM').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -33,7 +39,9 @@ export const decks = pgTable('decks', {
 export const flashcards = pgTable('flashcards', {
   id: serial('id').primaryKey(),
   deckId: integer('deck_id')
-    .references(() => decks.id)
+    .references(() => decks.id, {
+      onDelete: 'cascade',
+    })
     .notNull(),
 
   // Japanese text components
@@ -53,13 +61,14 @@ export const cardProgress = pgTable('card_progress', {
   id: serial('id').primaryKey(),
   // userId: integer('user_id').references(() => users.id).notNull(),
   flashcardId: integer('flashcard_id')
-    .references(() => flashcards.id)
+    .references(() => flashcards.id, {
+      onDelete: 'cascade',
+    })
     .notNull(),
 
   // Spaced repetition algorithm fields
   easeFactor: real('ease_factor').default(2.5).notNull(), // SM-2 algorithm ease factor
   interval: integer('interval').default(1).notNull(), // Days until next review
-  repetitions: integer('repetitions').default(0).notNull(), // Consecutive correct answers
 
   // Review scheduling
   nextReviewDate: timestamp('next_review_date').defaultNow().notNull(),
@@ -67,31 +76,127 @@ export const cardProgress = pgTable('card_progress', {
 
   // Performance tracking
   totalReviews: integer('total_reviews').default(0).notNull(),
-  correctReviews: integer('correct_reviews').default(0).notNull(),
 
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Individual review sessions/attempts
-export const reviewSessions = pgTable('review_sessions', {
+// Courses structure
+export const courses = pgTable('courses', {
   id: serial('id').primaryKey(),
-  // userId: integer('user_id').references(() => users.id).notNull(),
-  flashcardId: integer('flashcard_id')
-    .references(() => flashcards.id)
-    .notNull(),
-
-  // Review outcome
-  isCorrect: boolean('is_correct').notNull(),
-  difficulty: integer('difficulty'), // 1-5 scale for user-reported difficulty
-  responseTime: integer('response_time'), // Time in seconds
-
-  // Context
-  sessionId: text('session_id'), // Group related reviews together
-  reviewedAt: timestamp('reviewed_at').defaultNow().notNull(),
+  title: text('title').notNull(), // Japanese 101
+  description: text('description'), // Learn the basics of Japanese
+  slug: text('slug').unique().notNull(), //URL-friendly identifier
+  order: integer('order').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// Define relationships
+// Chapters within courses
+export const chapters = pgTable('chapters', {
+  id: serial('id').primaryKey(),
+  courseId: integer('course_id')
+    .references(() => courses.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  title: text('title').notNull(),
+  description: text('description'),
+  order: integer('order').notNull(),
+  isPublished: boolean('is_published').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const lessons = pgTable('lessons', {
+  id: serial('id').primaryKey(),
+  chapterId: integer('chapter_id')
+    .references(() => chapters.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  content: text('content'),
+  order: integer('order').notNull(),
+  isPublished: boolean('is_published').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Challenges at the end of each lesson
+export const challenges = pgTable('challenges', {
+  id: serial('id').primaryKey(),
+  lessonId: integer('lesson_id')
+    .references(() => lessons.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  question: text('question').notNull(),
+  type: challengeEnum('type').default('READING').notNull(),
+});
+
+// Options for each challenge
+export const challengeOptions = pgTable('challenge_options', {
+  id: serial('id').primaryKey(),
+  challengeId: integer('challenge_id')
+    .references(() => challenges.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  option: text('option').notNull(),
+  isCorrect: boolean('is_correct').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// User progress through courses
+export const userCourseProgress = pgTable('user_course_progress', {
+  id: serial('id').primaryKey(),
+  // userId: integer('user_id').references(() => users.id).notNull(),
+  courseId: integer('course_id')
+    .references(() => courses.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  isStarted: boolean('is_started').default(false).notNull(),
+  isCompleted: boolean('is_completed').default(false).notNull(),
+
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const userChapterProgress = pgTable('user_chapter_progress', {
+  id: serial('id').primaryKey(),
+  // userId: integer('user_id').references(() => users.id).notNull(),
+  chapterId: integer('chapter_id')
+    .references(() => chapters.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  isStarted: boolean('is_started').default(false).notNull(),
+  isCompleted: boolean('is_completed').default(false).notNull(),
+
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// User progress through lessons
+export const userLessonProgress = pgTable('user_lesson_progress', {
+  id: serial('id').primaryKey(),
+  // userId: integer('user_id').references(() => users.id).notNull(),
+  lessonId: integer('lesson_id')
+    .references(() => lessons.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  isStarted: boolean('is_started').default(false).notNull(),
+  isCompleted: boolean('is_completed').default(false).notNull(),
+
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// ********** RELATIONS **********
+
 // export const usersRelations = relations(users, ({ many }) => ({
 //   decks: many(decks),
 //   cardProgress: many(cardProgress),
@@ -112,7 +217,6 @@ export const flashcardsRelations = relations(flashcards, ({ one, many }) => ({
     references: [decks.id],
   }),
   cardProgress: many(cardProgress),
-  reviewSessions: many(reviewSessions),
 }));
 
 export const cardProgressRelations = relations(cardProgress, ({ one }) => ({
@@ -126,13 +230,72 @@ export const cardProgressRelations = relations(cardProgress, ({ one }) => ({
   }),
 }));
 
-export const reviewSessionsRelations = relations(reviewSessions, ({ one }) => ({
+export const coursesRelations = relations(courses, ({ many }) => ({
+  chapters: many(chapters),
+  userProgress: many(userCourseProgress),
+}));
+
+export const chaptersRelations = relations(chapters, ({ one, many }) => ({
+  course: one(courses, {
+    fields: [chapters.courseId],
+    references: [courses.id],
+  }),
+  lessons: many(lessons),
+}));
+
+export const lessonsRelations = relations(lessons, ({ one, many }) => ({
+  chapter: one(chapters, {
+    fields: [lessons.chapterId],
+    references: [chapters.id],
+  }),
+  challenges: many(challenges),
+  userProgress: many(userLessonProgress),
+}));
+
+export const challengesRelations = relations(challenges, ({ one, many }) => ({
+  lesson: one(lessons, {
+    fields: [challenges.lessonId],
+    references: [lessons.id],
+  }),
+  options: many(challengeOptions),
+}));
+
+export const challengeOptionsRelations = relations(challengeOptions, ({ one }) => ({
+  challenge: one(challenges, {
+    fields: [challengeOptions.challengeId],
+    references: [challenges.id],
+  }),
+}));
+
+export const userCourseProgressRelations = relations(userCourseProgress, ({ one }) => ({
   // user: one(users, {
-  //   fields: [reviewSessions.userId],
+  //   fields: [userCourseProgress.userId],
   //   references: [users.id],
   // }),
-  flashcard: one(flashcards, {
-    fields: [reviewSessions.flashcardId],
-    references: [flashcards.id],
+  course: one(courses, {
+    fields: [userCourseProgress.courseId],
+    references: [courses.id],
+  }),
+}));
+
+export const userChapterProgressRelations = relations(userChapterProgress, ({ one }) => ({
+  // user: one(users, {
+  //   fields: [userLessonProgress.userId],
+  //   references: [users.id],
+  // }),
+  chapter: one(chapters, {
+    fields: [userChapterProgress.chapterId],
+    references: [chapters.id],
+  }),
+}));
+
+export const userLessonProgressRelations = relations(userLessonProgress, ({ one }) => ({
+  // user: one(users, {
+  //   fields: [userLessonProgress.userId],
+  //   references: [users.id],
+  // }),
+  lesson: one(lessons, {
+    fields: [userLessonProgress.lessonId],
+    references: [lessons.id],
   }),
 }));

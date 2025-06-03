@@ -1,6 +1,6 @@
 {
-  "id": "1c6201a9-e9a8-4e6b-84a9-fdc9d118a789",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "d17f1cbd-4f0d-4e9b-a058-ba2a38fc2b09",
+  "prevId": "1c6201a9-e9a8-4e6b-84a9-fdc9d118a789",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -762,7 +762,25 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.challenge_enum": {
+      "name": "challenge_enum",
+      "schema": "public",
+      "values": [
+        "READING",
+        "ASSIST"
+      ]
+    },
+    "public.deck_enum": {
+      "name": "deck_enum",
+      "schema": "public",
+      "values": [
+        "CORE",
+        "CUSTOM",
+        "JLPT"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

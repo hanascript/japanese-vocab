@@ -5,8 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1748849341048,
-      "tag": "0000_flashy_bullseye",
+      "when": 1748921917839,
+      "tag": "0000_next_shinko_yamashiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748921993924,
+      "tag": "0001_safe_mimic",
       "breakpoints": true
     }
   ]

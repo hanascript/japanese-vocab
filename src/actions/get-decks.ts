@@ -1,9 +1,11 @@
 'use server';
 
+import { cache } from 'react';
+
 import db from '@/drizzle';
 
-export async function getDecks() {
+export const getDecks = cache(async () => {
   const decks = await db.query.decks.findMany();
 
   return decks;
-}
+});
