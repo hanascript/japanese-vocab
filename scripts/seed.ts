@@ -25,6 +25,21 @@ async function seed() {
     // await db.delete(schema.challenges);
     // await db.delete(schema.challengeOptions);
 
+    // Seed user
+    console.log('👥 Seeding user...');
+    const seedUser = await db
+      .insert(schema.UserTable)
+      .values({
+        name: 'test',
+        email: 'test@test.com',
+        password: 'password123',
+        salt: 'salt123',
+        role: 'user',
+      })
+      .returning();
+
+    console.log(`✅ Created ${seedUser.length} user`);
+
     // Seed decks
     console.log('👥 Seeding decks...');
     const seedDecks = await db
