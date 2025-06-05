@@ -1,5 +1,5 @@
 {
-  "id": "8c732412-4994-4c43-8193-4352bd385008",
+  "id": "28d11c45-9c36-40d1-8da4-9dda8156b238",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -447,8 +447,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.custom_decks": {
-      "name": "custom_decks",
+    "public.decks": {
+      "name": "decks",
       "schema": "",
       "columns": {
         "id": {
@@ -461,149 +461,7 @@
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
           "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "custom_decks_user_id_users_id_fk": {
-          "name": "custom_decks_user_id_users_id_fk",
-          "tableFrom": "custom_decks",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.custom_flashcards": {
-      "name": "custom_flashcards",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "custom_deck_id": {
-          "name": "custom_deck_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "kanji": {
-          "name": "kanji",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "kana": {
-          "name": "kana",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "meaning": {
-          "name": "meaning",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "pronunciation": {
-          "name": "pronunciation",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "example": {
-          "name": "example",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "custom_flashcards_custom_deck_id_custom_decks_id_fk": {
-          "name": "custom_flashcards_custom_deck_id_custom_decks_id_fk",
-          "tableFrom": "custom_flashcards",
-          "tableTo": "custom_decks",
-          "columnsFrom": [
-            "custom_deck_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.decks": {
-      "name": "decks",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
         },
         "name": {
           "name": "name",
@@ -641,7 +499,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "decks_user_id_users_id_fk": {
+          "name": "decks_user_id_users_id_fk",
+          "tableFrom": "decks",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

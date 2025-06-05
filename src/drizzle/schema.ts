@@ -72,23 +72,12 @@ export const userOauthAccountRelationships = relations(UserOAuthAccountTable, ({
 // Core Decks/Collections of flashcards
 export const decks = pgTable('decks', {
   id: serial('id').primaryKey(),
+  userId: uuid('user_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
   name: text('name').notNull(),
   description: text('description'),
   type: deckEnum('type').default('CUSTOM').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-// User custom decks
-export const customDecks = pgTable('custom_decks', {
-  id: serial('id').primaryKey(),
-  userId: uuid('user_id')
-    .references(() => users.id, {
-      onDelete: 'cascade',
-    })
-    .notNull(),
-  name: text('name').notNull(),
-  description: text('description'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -98,27 +87,6 @@ export const flashcards = pgTable('flashcards', {
   id: serial('id').primaryKey(),
   deckId: integer('deck_id')
     .references(() => decks.id, {
-      onDelete: 'cascade',
-    })
-    .notNull(),
-
-  // Japanese text components
-  kanji: text('kanji'), // Optional kanji representation
-  kana: text('kana').notNull(), // Required hiragana/katakana
-  meaning: text('meaning').notNull(), // Required meaning
-  pronunciation: text('pronunciation'), // Optional romaji/pronunciation
-  example: text('example'), // Optional example sentence
-
-  // Metadata
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
-
-// Individual flashcards
-export const customFlashcards = pgTable('custom_flashcards', {
-  id: serial('id').primaryKey(),
-  customDeckId: integer('custom_deck_id')
-    .references(() => customDecks.id, {
       onDelete: 'cascade',
     })
     .notNull(),
@@ -302,14 +270,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const decksRelations = relations(decks, ({ one, many }) => ({
   flashcards: many(flashcards),
-}));
-
-export const customDecksRelations = relations(customDecks, ({ one, many }) => ({
   user: one(users, {
-    fields: [customDecks.userId],
+    fields: [decks.userId],
     references: [users.id],
   }),
-  flashcards: many(flashcards),
 }));
 
 export const flashcardsRelations = relations(flashcards, ({ one, many }) => ({
