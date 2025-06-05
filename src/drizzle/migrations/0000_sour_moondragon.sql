@@ -12,20 +12,9 @@ CREATE TABLE "user_oauth_accounts" (
 	CONSTRAINT "user_oauth_accounts_providerAccountId_unique" UNIQUE("providerAccountId")
 );
 --> statement-breakpoint
-CREATE TABLE "users" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" text NOT NULL,
-	"email" text NOT NULL,
-	"password" text,
-	"salt" text,
-	"role" "user_roles" DEFAULT 'user' NOT NULL,
-	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
-	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL,
-	CONSTRAINT "users_email_unique" UNIQUE("email")
-);
---> statement-breakpoint
 CREATE TABLE "card_progress" (
 	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
 	"flashcard_id" integer NOT NULL,
 	"ease_factor" real DEFAULT 2.5 NOT NULL,
 	"interval" integer DEFAULT 1 NOT NULL,
@@ -74,6 +63,27 @@ CREATE TABLE "courses" (
 	CONSTRAINT "courses_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
+CREATE TABLE "custom_decks" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
+	"name" text NOT NULL,
+	"description" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "custom_flashcards" (
+	"id" serial PRIMARY KEY NOT NULL,
+	"custom_deck_id" integer NOT NULL,
+	"kanji" text,
+	"kana" text NOT NULL,
+	"meaning" text NOT NULL,
+	"pronunciation" text,
+	"example" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "decks" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
@@ -107,6 +117,7 @@ CREATE TABLE "lessons" (
 --> statement-breakpoint
 CREATE TABLE "user_chapter_progress" (
 	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
 	"chapter_id" integer NOT NULL,
 	"is_started" boolean DEFAULT false NOT NULL,
 	"is_completed" boolean DEFAULT false NOT NULL,
@@ -116,6 +127,7 @@ CREATE TABLE "user_chapter_progress" (
 --> statement-breakpoint
 CREATE TABLE "user_course_progress" (
 	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
 	"course_id" integer NOT NULL,
 	"is_started" boolean DEFAULT false NOT NULL,
 	"is_completed" boolean DEFAULT false NOT NULL,
@@ -125,6 +137,7 @@ CREATE TABLE "user_course_progress" (
 --> statement-breakpoint
 CREATE TABLE "user_lesson_progress" (
 	"id" serial PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
 	"lesson_id" integer NOT NULL,
 	"is_started" boolean DEFAULT false NOT NULL,
 	"is_completed" boolean DEFAULT false NOT NULL,
@@ -132,13 +145,30 @@ CREATE TABLE "user_lesson_progress" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "users" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" text NOT NULL,
+	"email" text NOT NULL,
+	"password" text,
+	"role" "user_roles" DEFAULT 'user' NOT NULL,
+	"createdAt" timestamp with time zone DEFAULT now() NOT NULL,
+	"updatedAt" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "users_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
 ALTER TABLE "user_oauth_accounts" ADD CONSTRAINT "user_oauth_accounts_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "card_progress" ADD CONSTRAINT "card_progress_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "card_progress" ADD CONSTRAINT "card_progress_flashcard_id_flashcards_id_fk" FOREIGN KEY ("flashcard_id") REFERENCES "public"."flashcards"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "challenge_options" ADD CONSTRAINT "challenge_options_challenge_id_challenges_id_fk" FOREIGN KEY ("challenge_id") REFERENCES "public"."challenges"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "challenges" ADD CONSTRAINT "challenges_lesson_id_lessons_id_fk" FOREIGN KEY ("lesson_id") REFERENCES "public"."lessons"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chapters" ADD CONSTRAINT "chapters_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "custom_decks" ADD CONSTRAINT "custom_decks_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "custom_flashcards" ADD CONSTRAINT "custom_flashcards_custom_deck_id_custom_decks_id_fk" FOREIGN KEY ("custom_deck_id") REFERENCES "public"."custom_decks"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "flashcards" ADD CONSTRAINT "flashcards_deck_id_decks_id_fk" FOREIGN KEY ("deck_id") REFERENCES "public"."decks"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "lessons" ADD CONSTRAINT "lessons_chapter_id_chapters_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_chapter_progress" ADD CONSTRAINT "user_chapter_progress_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_chapter_progress" ADD CONSTRAINT "user_chapter_progress_chapter_id_chapters_id_fk" FOREIGN KEY ("chapter_id") REFERENCES "public"."chapters"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_course_progress" ADD CONSTRAINT "user_course_progress_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_course_progress" ADD CONSTRAINT "user_course_progress_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_lesson_progress" ADD CONSTRAINT "user_lesson_progress_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_lesson_progress" ADD CONSTRAINT "user_lesson_progress_lesson_id_lessons_id_fk" FOREIGN KEY ("lesson_id") REFERENCES "public"."lessons"("id") ON DELETE cascade ON UPDATE no action;

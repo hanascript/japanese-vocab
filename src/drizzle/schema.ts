@@ -69,13 +69,26 @@ export const userOauthAccountRelationships = relations(UserOAuthAccountTable, ({
 
 // ********** APPLICATION DATA **********
 
-// Decks/Collections of flashcards
+// Core Decks/Collections of flashcards
 export const decks = pgTable('decks', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id),
   name: text('name').notNull(),
   description: text('description'),
   type: deckEnum('type').default('CUSTOM').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// User custom decks
+export const customDecks = pgTable('custom_decks', {
+  id: serial('id').primaryKey(),
+  userId: uuid('user_id')
+    .references(() => users.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+  name: text('name').notNull(),
+  description: text('description'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -101,11 +114,34 @@ export const flashcards = pgTable('flashcards', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Individual flashcards
+export const customFlashcards = pgTable('custom_flashcards', {
+  id: serial('id').primaryKey(),
+  customDeckId: integer('custom_deck_id')
+    .references(() => customDecks.id, {
+      onDelete: 'cascade',
+    })
+    .notNull(),
+
+  // Japanese text components
+  kanji: text('kanji'), // Optional kanji representation
+  kana: text('kana').notNull(), // Required hiragana/katakana
+  meaning: text('meaning').notNull(), // Required meaning
+  pronunciation: text('pronunciation'), // Optional romaji/pronunciation
+  example: text('example'), // Optional example sentence
+
+  // Metadata
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 // Spaced repetition data for each user-card combination
 export const cardProgress = pgTable('card_progress', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
-    .references(() => users.id)
+  userId: uuid('user_id')
+    .references(() => users.id, {
+      onDelete: 'cascade',
+    })
     .notNull(),
   flashcardId: integer('flashcard_id')
     .references(() => flashcards.id, {
@@ -198,8 +234,10 @@ export const challengeOptions = pgTable('challenge_options', {
 // User progress through courses
 export const userCourseProgress = pgTable('user_course_progress', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
-    .references(() => users.id)
+  userId: uuid('user_id')
+    .references(() => users.id, {
+      onDelete: 'cascade',
+    })
     .notNull(),
   courseId: integer('course_id')
     .references(() => courses.id, {
@@ -215,8 +253,10 @@ export const userCourseProgress = pgTable('user_course_progress', {
 
 export const userChapterProgress = pgTable('user_chapter_progress', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
-    .references(() => users.id)
+  userId: uuid('user_id')
+    .references(() => users.id, {
+      onDelete: 'cascade',
+    })
     .notNull(),
   chapterId: integer('chapter_id')
     .references(() => chapters.id, {
@@ -233,8 +273,10 @@ export const userChapterProgress = pgTable('user_chapter_progress', {
 // User progress through lessons
 export const userLessonProgress = pgTable('user_lesson_progress', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id')
-    .references(() => users.id)
+  userId: uuid('user_id')
+    .references(() => users.id, {
+      onDelete: 'cascade',
+    })
     .notNull(),
   lessonId: integer('lesson_id')
     .references(() => lessons.id, {
@@ -259,8 +301,12 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const decksRelations = relations(decks, ({ one, many }) => ({
+  flashcards: many(flashcards),
+}));
+
+export const customDecksRelations = relations(customDecks, ({ one, many }) => ({
   user: one(users, {
-    fields: [decks.userId],
+    fields: [customDecks.userId],
     references: [users.id],
   }),
   flashcards: many(flashcards),

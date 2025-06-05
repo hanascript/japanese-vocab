@@ -5,8 +5,9 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 import db from '@/drizzle';
-import { decks, flashcards } from '@/drizzle/schema';
+import { customDecks, customFlashcards } from '@/drizzle/schema';
 
+import { getCurrentUser } from '@/lib/currentUser';
 import { newDeckSchema } from '@/lib/schemas';
 
 export async function createNewDeck(formData: z.infer<typeof newDeckSchema>) {
@@ -18,18 +19,25 @@ export async function createNewDeck(formData: z.infer<typeof newDeckSchema>) {
 
   const { name, description, flashcards: cards } = validatedFields.data;
 
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return { error: 'User not found' };
+  }
+
   try {
     const [newDeck] = await db
-      .insert(decks)
+      .insert(customDecks)
       .values({
+        userId: user.id,
         name,
         description,
       })
       .returning();
 
-    await db.insert(flashcards).values(
+    await db.insert(customFlashcards).values(
       cards.map(card => ({
-        deckId: newDeck.id,
+        customDeckId: newDeck.id,
         kana: card.kana,
         meaning: card.meaning,
         kanji: card.kanji,
