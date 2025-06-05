@@ -66,7 +66,7 @@ export default function CreateSetPage() {
               <Button
                 type='submit'
                 variant='secondary'
-                disabled={!form.formState.isValid}
+                className={cn(!form.formState.isValid && 'hover:cursor-not-allowed')}
               >
                 <Save className='size-4' />
                 Save
@@ -96,7 +96,7 @@ export default function CreateSetPage() {
                   name='description'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className='text-green-700'>Description*</FormLabel>
+                      <FormLabel className='text-green-700'>Description</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder='Describe what this deck covers...'
@@ -139,6 +139,7 @@ export default function CreateSetPage() {
                 </CardTitle>
                 <Button
                   type='button'
+                  variant='destructive'
                   onClick={() => removeCard(index)}
                 >
                   <Trash className='size-4' />
