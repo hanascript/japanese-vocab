@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Chewy, Poppins } from 'next/font/google';
 
+// Fonts
+// hi-melody, cherry bomb one,
 import './globals.css';
 
 import { cn } from '@/lib/utils';
@@ -9,6 +11,12 @@ const poppins = Poppins({
   variable: '--font-poppins',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
+});
+
+const chewy = Chewy({
+  variable: '--font-chewy',
+  subsets: ['latin'],
+  weight: ['400'],
 });
 
 export const metadata: Metadata = {
@@ -23,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={cn('antialiased', poppins.variable)}>{children}</body>
+      <body className={cn('antialiased', poppins.variable, chewy.variable)}>{children}</body>
     </html>
   );
 }

@@ -1,7 +1,9 @@
+import { getCurrentUser } from '@/lib/currentUser';
 import { Navbar } from '@/components/navbar';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   // TODO: Check if user is authenticated and redirect to login page if not
+  const user = await getCurrentUser({ redirectIfNotFound: true });
 
   return (
     <>

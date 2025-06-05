@@ -27,6 +27,8 @@ export async function getUserFromSession() {
   return getUserSessionById(sessionId);
 }
 
+
+
 export async function updateUserSessionData(user: UserSession) {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get(COOKIE_SESSION_KEY)?.value;
@@ -67,7 +69,7 @@ export async function removeUserFromSession() {
   cookieStore.delete(COOKIE_SESSION_KEY);
 }
 
-async function getUserSessionById(sessionId: string) {
+export async function getUserSessionById(sessionId: string) {
   const rawUser = await redisClient.get(`session:${sessionId}`);
 
   if (!rawUser) return null;
@@ -77,7 +79,7 @@ async function getUserSessionById(sessionId: string) {
   return success ? user : null;
 }
 
-async function createUserSession(user: UserSession) {
+export async function createUserSession(user: UserSession) {
   const cookieStore = await cookies();
   const sessionId = generateSessionToken();
 
