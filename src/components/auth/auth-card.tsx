@@ -12,7 +12,7 @@ type Props = {
 
 export const AuthCard = ({ children, cardTitle, backButtonLabel, backButtonHref }: Props) => {
   return (
-    <Card className='mx-auto w-full max-w-md'>
+    <Card className='mx-auto w-full max-w-md border-orange-300 shadow-xl'>
       <CardHeader>
         <CardTitle className='text-center'>
           <h2 className='text-3xl'>{cardTitle}</h2>

@@ -35,7 +35,7 @@ export default function SignInForm() {
   return (
     <AuthCard
       cardTitle='Login to your account'
-      backButtonHref='/auth/register'
+      backButtonHref='/auth/sign-up'
       backButtonLabel="Don't have an account yet?"
     >
       <div>
