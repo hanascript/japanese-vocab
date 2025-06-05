@@ -17,23 +17,23 @@ async function seed() {
   try {
     // Clear existing data (optional)
     // console.log('🗑️ Clearing existing data...');
-    // await db.delete(schema.decks);
-    // await db.delete(schema.flashcards);
-    // await db.delete(schema.courses);
-    // await db.delete(schema.chapters);
-    // await db.delete(schema.lessons);
-    // await db.delete(schema.challenges);
-    // await db.delete(schema.challengeOptions);
+    await db.delete(schema.decks);
+    await db.delete(schema.users);
+    await db.delete(schema.flashcards);
+    await db.delete(schema.courses);
+    await db.delete(schema.chapters);
+    await db.delete(schema.lessons);
+    await db.delete(schema.challenges);
+    await db.delete(schema.challengeOptions);
 
     // Seed user
     console.log('👥 Seeding user...');
     const seedUser = await db
-      .insert(schema.UserTable)
+      .insert(schema.users)
       .values({
         name: 'test',
         email: 'test@test.com',
-        password: 'password123',
-        salt: 'salt123',
+        password: '$2b$10$Ke.MpKNrdbb4xN42crpQv.s7h/GcK2fYPLAh/ySeOysztfNGyOuS.',
         role: 'user',
       })
       .returning();

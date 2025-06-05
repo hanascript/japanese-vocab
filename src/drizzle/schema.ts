@@ -18,38 +18,37 @@ export const challengeEnum = pgEnum('challenge_enum', ['READING', 'ASSIST']);
 
 // ********** USER AUTHENTICATION **********
 
-export const userRoles = ["admin", "user"] as const
-export type UserRole = (typeof userRoles)[number]
-export const userRoleEnum = pgEnum("user_roles", userRoles)
+export const userRoles = ['admin', 'user'] as const;
+export type UserRole = (typeof userRoles)[number];
+export const userRoleEnum = pgEnum('user_roles', userRoles);
 
-export const UserTable = pgTable("users", {
+export const users = pgTable('users', {
   id: uuid().primaryKey().defaultRandom(),
   name: text().notNull(),
   email: text().notNull().unique(),
   password: text(),
-  salt: text(),
-  role: userRoleEnum().notNull().default("user"),
+  role: userRoleEnum().notNull().default('user'),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true })
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-})
+});
 
-export const userRelations = relations(UserTable, ({ many }) => ({
+export const userRelations = relations(users, ({ many }) => ({
   oAuthAccounts: many(UserOAuthAccountTable),
-}))
+}));
 
-export const oAuthProviders = ["discord", "github"] as const
-export type OAuthProvider = (typeof oAuthProviders)[number]
-export const oAuthProviderEnum = pgEnum("oauth_provides", oAuthProviders)
+export const oAuthProviders = ['discord', 'github'] as const;
+export type OAuthProvider = (typeof oAuthProviders)[number];
+export const oAuthProviderEnum = pgEnum('oauth_provides', oAuthProviders);
 
 export const UserOAuthAccountTable = pgTable(
-  "user_oauth_accounts",
+  'user_oauth_accounts',
   {
     userId: uuid()
       .notNull()
-      .references(() => UserTable.id, { onDelete: "cascade" }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     provider: oAuthProviderEnum().notNull(),
     providerAccountId: text().notNull().unique(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
@@ -59,24 +58,21 @@ export const UserOAuthAccountTable = pgTable(
       .$onUpdate(() => new Date()),
   },
   t => [primaryKey({ columns: [t.providerAccountId, t.provider] })]
-)
+);
 
-export const userOauthAccountRelationships = relations(
-  UserOAuthAccountTable,
-  ({ one }) => ({
-    user: one(UserTable, {
-      fields: [UserOAuthAccountTable.userId],
-      references: [UserTable.id],
-    }),
-  })
-)
+export const userOauthAccountRelationships = relations(UserOAuthAccountTable, ({ one }) => ({
+  user: one(users, {
+    fields: [UserOAuthAccountTable.userId],
+    references: [users.id],
+  }),
+}));
 
 // ********** APPLICATION DATA **********
 
 // Decks/Collections of flashcards
 export const decks = pgTable('decks', {
   id: serial('id').primaryKey(),
-  // userId: integer('user_id').references(() => users.id).notNull(),
+  userId: integer('user_id').references(() => users.id),
   name: text('name').notNull(),
   description: text('description'),
   type: deckEnum('type').default('CUSTOM').notNull(),
@@ -108,7 +104,9 @@ export const flashcards = pgTable('flashcards', {
 // Spaced repetition data for each user-card combination
 export const cardProgress = pgTable('card_progress', {
   id: serial('id').primaryKey(),
-  // userId: integer('user_id').references(() => users.id).notNull(),
+  userId: integer('user_id')
+    .references(() => users.id)
+    .notNull(),
   flashcardId: integer('flashcard_id')
     .references(() => flashcards.id, {
       onDelete: 'cascade',
@@ -200,7 +198,9 @@ export const challengeOptions = pgTable('challenge_options', {
 // User progress through courses
 export const userCourseProgress = pgTable('user_course_progress', {
   id: serial('id').primaryKey(),
-  // userId: integer('user_id').references(() => users.id).notNull(),
+  userId: integer('user_id')
+    .references(() => users.id)
+    .notNull(),
   courseId: integer('course_id')
     .references(() => courses.id, {
       onDelete: 'cascade',
@@ -215,7 +215,9 @@ export const userCourseProgress = pgTable('user_course_progress', {
 
 export const userChapterProgress = pgTable('user_chapter_progress', {
   id: serial('id').primaryKey(),
-  // userId: integer('user_id').references(() => users.id).notNull(),
+  userId: integer('user_id')
+    .references(() => users.id)
+    .notNull(),
   chapterId: integer('chapter_id')
     .references(() => chapters.id, {
       onDelete: 'cascade',
@@ -231,7 +233,9 @@ export const userChapterProgress = pgTable('user_chapter_progress', {
 // User progress through lessons
 export const userLessonProgress = pgTable('user_lesson_progress', {
   id: serial('id').primaryKey(),
-  // userId: integer('user_id').references(() => users.id).notNull(),
+  userId: integer('user_id')
+    .references(() => users.id)
+    .notNull(),
   lessonId: integer('lesson_id')
     .references(() => lessons.id, {
       onDelete: 'cascade',
@@ -246,17 +250,19 @@ export const userLessonProgress = pgTable('user_lesson_progress', {
 
 // ********** RELATIONS **********
 
-// export const usersRelations = relations(users, ({ many }) => ({
-//   decks: many(decks),
-//   cardProgress: many(cardProgress),
-//   reviewSessions: many(reviewSessions),
-// }));
+export const usersRelations = relations(users, ({ many }) => ({
+  decks: many(decks),
+  cardProgress: many(cardProgress),
+  userCourseProgress: many(userCourseProgress),
+  userChapterProgress: many(userChapterProgress),
+  userLessonProgress: many(userLessonProgress),
+}));
 
 export const decksRelations = relations(decks, ({ one, many }) => ({
-  // user: one(users, {
-  //   fields: [decks.userId],
-  //   references: [users.id],
-  // }),
+  user: one(users, {
+    fields: [decks.userId],
+    references: [users.id],
+  }),
   flashcards: many(flashcards),
 }));
 
@@ -269,10 +275,10 @@ export const flashcardsRelations = relations(flashcards, ({ one, many }) => ({
 }));
 
 export const cardProgressRelations = relations(cardProgress, ({ one }) => ({
-  // user: one(users, {
-  //   fields: [cardProgress.userId],
-  //   references: [users.id],
-  // }),
+  user: one(users, {
+    fields: [cardProgress.userId],
+    references: [users.id],
+  }),
   flashcard: one(flashcards, {
     fields: [cardProgress.flashcardId],
     references: [flashcards.id],
@@ -317,10 +323,10 @@ export const challengeOptionsRelations = relations(challengeOptions, ({ one }) =
 }));
 
 export const userCourseProgressRelations = relations(userCourseProgress, ({ one }) => ({
-  // user: one(users, {
-  //   fields: [userCourseProgress.userId],
-  //   references: [users.id],
-  // }),
+  user: one(users, {
+    fields: [userCourseProgress.userId],
+    references: [users.id],
+  }),
   course: one(courses, {
     fields: [userCourseProgress.courseId],
     references: [courses.id],
@@ -328,10 +334,10 @@ export const userCourseProgressRelations = relations(userCourseProgress, ({ one 
 }));
 
 export const userChapterProgressRelations = relations(userChapterProgress, ({ one }) => ({
-  // user: one(users, {
-  //   fields: [userLessonProgress.userId],
-  //   references: [users.id],
-  // }),
+  user: one(users, {
+    fields: [userChapterProgress.userId],
+    references: [users.id],
+  }),
   chapter: one(chapters, {
     fields: [userChapterProgress.chapterId],
     references: [chapters.id],
@@ -339,10 +345,10 @@ export const userChapterProgressRelations = relations(userChapterProgress, ({ on
 }));
 
 export const userLessonProgressRelations = relations(userLessonProgress, ({ one }) => ({
-  // user: one(users, {
-  //   fields: [userLessonProgress.userId],
-  //   references: [users.id],
-  // }),
+  user: one(users, {
+    fields: [userLessonProgress.userId],
+    references: [users.id],
+  }),
   lesson: one(lessons, {
     fields: [userLessonProgress.lessonId],
     references: [lessons.id],

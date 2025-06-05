@@ -1,5 +1,6 @@
 'use client';
 
+import { signIn } from '@/actions/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Lock, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -29,7 +30,7 @@ export default function SignInForm() {
   });
 
   function onSubmit(values: z.infer<typeof signInSchema>) {
-    console.log(values);
+    signIn(values);
   }
 
   return (

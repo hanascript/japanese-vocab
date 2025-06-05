@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 import db from '@/drizzle';
-import { UserTable } from '@/drizzle/schema';
+import { users } from '@/drizzle/schema';
 
 import { comparePasswords, generateSalt, hashPassword } from '@/lib/passwordHasher';
 import { signInSchema, signUpSchema } from '@/lib/schemas';
@@ -16,12 +16,12 @@ export async function signIn(unsafeData: z.infer<typeof signInSchema>) {
 
   if (!success) return 'Unable to log you in';
 
-  const user = await db.query.UserTable.findFirst({
-    columns: { password: true, salt: true, id: true, email: true, role: true },
-    where: eq(UserTable.email, data.email),
+  const user = await db.query.users.findFirst({
+    columns: { password: true, id: true, email: true, role: true },
+    where: eq(users.email, data.email),
   });
 
-  if (user == null || user.password == null || user.salt == null) {
+  if (user == null || user.password == null) {
     return 'Unable to log you in';
   }
 
@@ -42,25 +42,23 @@ export async function signUp(unsafeData: z.infer<typeof signUpSchema>) {
 
   if (!success) return 'Unable to create account';
 
-  const existingUser = await db.query.UserTable.findFirst({
-    where: eq(UserTable.email, data.email),
+  const existingUser = await db.query.users.findFirst({
+    where: eq(users.email, data.email),
   });
 
   if (existingUser != null) return 'Account already exists for this email';
 
   try {
-    const salt = generateSalt();
-    const hashedPassword = await hashPassword(data.password, salt);
+    const hashedPassword = await hashPassword(data.password);
 
     const [user] = await db
-      .insert(UserTable)
+      .insert(users)
       .values({
         name: data.name,
         email: data.email,
         password: hashedPassword,
-        salt,
       })
-      .returning({ id: UserTable.id, role: UserTable.role });
+      .returning({ id: users.id, role: users.role });
 
     if (user == null) return 'Unable to create account';
     await createUserSession(user);
@@ -72,8 +70,8 @@ export async function signUp(unsafeData: z.infer<typeof signUpSchema>) {
 }
 
 export async function logOut() {
-  await removeUserFromSession()
-  redirect("/")
+  await removeUserFromSession();
+  redirect('/');
 }
 
 // export async function oAuthSignIn(provider: OAuthProvider) {

@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AuthCard } from '@/components/auth/auth-card';
+import { signUp } from '@/actions/auth';
 
 export default function SignUpForm() {
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -30,7 +31,7 @@ export default function SignUpForm() {
   });
 
   function onSubmit(values: z.infer<typeof signUpSchema>) {
-    console.log(values);
+    signUp(values);
   }
 
   return (

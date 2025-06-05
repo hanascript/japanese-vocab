@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { eq } from 'drizzle-orm';
 
 import db from '@/drizzle';
-import { UserTable } from '@/drizzle/schema';
+import { users } from '@/drizzle/schema';
 
 import { getUserFromSession } from '@/lib/session';
 
@@ -52,8 +52,8 @@ async function _getCurrentUser({ withFullUser = false, redirectIfNotFound = fals
 export const getCurrentUser = cache(_getCurrentUser);
 
 export async function getUserFromDb(id: string) {
-  return db.query.UserTable.findFirst({
+  return db.query.users.findFirst({
     columns: { id: true, email: true, role: true, name: true },
-    where: eq(UserTable.id, id),
+    where: eq(users.id, id),
   });
 }
