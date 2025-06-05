@@ -5,6 +5,7 @@ import { Lock, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { signInSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,25 +19,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { AuthCard } from '@/components/auth/auth-card';
 
-export default function LoginForm() {
-  const LoginSchema = z.object({
-    email: z.string().email({
-      message: 'Email is required',
-    }),
-    password: z.string().min(1, {
-      message: 'Password is required',
-    }),
-  });
-
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+export default function SignInForm() {
+  const form = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  function onSubmit(values: z.infer<typeof LoginSchema>) {
+  function onSubmit(values: z.infer<typeof signInSchema>) {
     console.log(values);
   }
 

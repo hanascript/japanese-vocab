@@ -5,6 +5,7 @@ import { Lock, Mail, User } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { signUpSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -18,19 +19,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { AuthCard } from '@/components/auth/auth-card';
 
-export default function RegisterForm() {
-  const RegisterSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(8, {
-      message: 'Password must be at least 8 characters',
-    }),
-    name: z.string().min(1, {
-      message: 'Name is required',
-    }),
-  });
-
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
+export default function SignUpForm() {
+  const form = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -38,7 +29,7 @@ export default function RegisterForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof RegisterSchema>) {
+  function onSubmit(values: z.infer<typeof signUpSchema>) {
     console.log(values);
   }
 
