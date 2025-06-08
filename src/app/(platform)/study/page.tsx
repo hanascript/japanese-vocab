@@ -1,8 +1,8 @@
 import Link from 'next/link';
+import { getDecks } from '@/actions/get-decks';
 import { Bookmark, BookOpen, CircleX, Plus, Target } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { getDecks } from '@/actions/get-decks';
 
 export default async function StudyPage() {
   const decks = await getDecks();
@@ -13,7 +13,7 @@ export default async function StudyPage() {
         <div className='space-y-8'>
           <div className='space-y-2 text-yellow-100'>
             <h2 className='text-5xl font-bold text-black/80'>Daily vocab workout</h2>
-            <p>Practice words and phrases to maxximize your vocab retention.</p>
+            <p>Practice words and phrases to maximize your vocab retention.</p>
           </div>
           <Button>Review Vocab</Button>
         </div>
