@@ -37,18 +37,20 @@ export default async function StudyPage() {
       <div className='space-y-4'>
         <h2 className='text-2xl font-bold'>Custom Decks</h2>
 
-        <div className='flex items-center gap-4 rounded-md bg-gray-200/50 hover:cursor-pointer hover:bg-gray-200'>
+        <Link
+          href='/user-decks'
+          className='flex items-center gap-4 rounded-md bg-gray-200/50 hover:cursor-pointer hover:bg-gray-200'
+        >
           <div className='h-full rounded-l-md bg-gray-200/80 p-8'>
             <Bookmark className='size-12 text-orange-400' />
           </div>
           <div className='flex flex-1 items-center justify-between px-8'>
             <div className='space-y-2'>
-              <p className='text-xl font-semibold'>Saved items</p>
-              <p className='text-sm'>0 items</p>
+              <p className='text-xl font-semibold'>Saved Decks</p>
+              {decks.length} {decks.length === 1 ? 'deck' : 'decks'}
             </div>
-            <Button disabled>Study</Button>
           </div>
-        </div>
+        </Link>
       </div>
 
       <Button
